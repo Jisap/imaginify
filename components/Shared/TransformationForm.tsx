@@ -21,10 +21,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
-import { aspectRatioOptions, defaultValues, transformationTypes } from "@/constants"
+import { aspectRatioOptions, creditFee, defaultValues, transformationTypes } from "@/constants"
 import { CustomField } from "./CustomField"
-import { useState } from "react"
-import { AspectRatioKey, debounce } from "@/lib/utils"
+import { useState, useTransition } from "react"
+import { AspectRatioKey, debounce, deepMergeObjects } from "@/lib/utils"
+import { updateCredits } from "@/lib/actions/user.action"
 
 export const formSchema = z.object({
   title: z.string(),
@@ -43,6 +44,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
   const [transformationConfig, setTransformationConfig] = useState(config)
+  const [isPending, startTransition] = useTransition()
 
   const initialValues = data && action === 'Update' ? {
     title: data?.title,
@@ -60,8 +62,9 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
 
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values)
     setIsSubmitting(true);
+
+    
   }
 
   const onSelectFieldHandler = (value: string, onChangeField: (value: string) => void) => {
@@ -74,28 +77,42 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
       height: imageSize.height,
     }))
 
-    setNewTransformation(transformationType.config);
+    setNewTransformation(transformationType.config); // removeBackground
 
     return onChangeField(value)
   }
 
-  const onInputChangeHandler = (
-    fieldName: string,                      // string con valor 'prompt'
-    value: string,                          // e.target.value -> cadena del objeto a modificar (remove o recolor)
+  const onInputChangeHandler = ( 
+    fieldName: string,                      // string con valor 'prompt' o 'color'
+    value: string,                          // e.target.value -> cadena del objeto a modificar 
     type: string,                           // tipo de transformación remove o recolor 
     onChangeField: (value: string) => void  // función proporcionada por react-hook-form para manejar cambios en el valor del campo, (validaciones y errores)
   ) => {
     debounce(() => {
       setNewTransformation((prevState: any) => ({             // Con 1 sec de retardamiento se establece el nuevo estado para la transformation
-        ...prevState,                                         // spread del anterior estado, objeto remove{} o recolor{}
-        [type]: {                                             // actualización a la nueva transformación
-          ...prevState?.[type],                               // correspondiente a su anterior estado
-          [fieldName === 'prompt' ? 'prompt' : 'to']: value   // modificando la propiedad prompt con el valor 'prompt'  o 'to'
-        }
+        ...prevState,                                         // spread del anterior estado, {restore, fillbackground, remove, recolor, removeBackground}
+        [type]: {                                             // actualización de la transformación remove{} o recolor{}
+          ...prevState?.[type],                               // en ella spread tambien de sus props anteriores
+          [fieldName === 'prompt' ? 'prompt' : 'to']: value   // entonces modificación de la propiedad 'prompt' con el value del input 
+        }                                                     // o modificación de la propiedad 'to' con el value del input
       }))
     }, 1000)();
 
     return onChangeField(value)
+  }
+
+  const onTransformHandler = async () => {
+    setIsTransforming(true)
+
+    setTransformationConfig(
+      deepMergeObjects(newTransformation, transformationConfig)
+    )
+
+    setNewTransformation(null)
+
+    startTransition(async () => {
+      await updateCredits(userId, creditFee)
+    })
   }
 
   return (
@@ -150,7 +167,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
                 <Input
                   value={field.value}
                   className="input-field" 
-                  onChange={(e) => onInputChangeHandler(
+                  onChange={(e) => onInputChangeHandler( // Establece estado de la transformación remove
                     'prompt',
                     e.target.value,
                     type,
@@ -170,7 +187,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
                   <Input
                     value={field.value}
                     className="input-field"
-                    onChange={(e) => onInputChangeHandler(
+                    onChange={(e) => onInputChangeHandler( // Establece estado de la transformación recolor
                       'color',
                       e.target.value,
                       'recolor',
@@ -183,13 +200,27 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
 
           </div>  
         )}
-        <Button
-          type="submit"
-          className="submit-button capitalize"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Submitting...' : 'Save Image'}
-        </Button>
+
+        <div className="flex flex-col gap-4">
+          {/* Boton para transformar */}
+          <Button 
+            type="button"
+            className="submit-button capitalize"
+            disabled={isTransforming || newTransformation === null}
+            onClick={onTransformHandler} // Inicia la transformación
+          >
+            {isTransforming ? 'Transforming...' : 'Apply Transformation'}
+          </Button>
+          {/* Boton para grabar */}
+          <Button
+            type="submit"
+            className="submit-button capitalize"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Submitting...' : 'Save Image'}
+          </Button>
+        </div>
+
       </form>
     </Form>
   )}
