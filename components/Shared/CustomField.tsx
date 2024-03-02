@@ -14,7 +14,7 @@ import { formSchema } from "./TransformationForm";
 
 type CustomFieldProps = {
   control: Control<z.infer<typeof formSchema>> | undefined;
-  render: (props: { field: any }) => React.ReactNode;
+  render: (props: { field: any }) => React.ReactNode; // render genera un nodo dentro de dom, y este nodo puede ser un input o un select o un component
   name: keyof z.infer<typeof formSchema>;
   formLabel?: string;
   className?: string;
@@ -32,7 +32,7 @@ export const CustomField = ({
     <FormField 
       control={control}
       name={name}
-      render={({ field }) => ( // FormField generará un campo que será lo que determine la prop como función
+      render={({ field }) => ( // FormField generará un nodo que será lo que determine la prop como función, un input, select o un componente de shadcn
         <FormItem className={className}>
           {formLabel && <FormLabel>{formLabel}</FormLabel>}
           <FormControl>{render({ field })}</FormControl>
