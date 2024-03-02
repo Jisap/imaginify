@@ -59,8 +59,8 @@ const MediaUploader = ({
         multiple: false,
         resourceType: "image",
       }}
-      onSuccess={onUploadSuccessHandler} // Si se subio la imagen -> open -> boton de + -> click open dialogo de upload -> subimos imagen a cloudinay
-      onError={onUploadErrorHandler}     // -> obtenemos publicId -> CldImage mostrando la imagen seleccionada antes de tranformarla
+      onSuccess={onUploadSuccessHandler} // Si se subio la imagen -> estado para image -> onValueChange para el formulario -> mensaje con toast
+      onError={onUploadErrorHandler}     // Si hubo error -> mensaje de error con toast     
     >
       {({ open }) => (                   // open es una función proporcionada por <CldUploadWidget> que se utiliza para abrir el diálogo de carga de archivos  
         <div className="flex flex-col gap-4">
@@ -68,7 +68,7 @@ const MediaUploader = ({
             Original
           </h3>
 
-          {publicId ? (
+          {publicId ? ( // Si tenemos la imagen seleccionada la mostramos con <CldImage />
             <>
               <div className="cursor-pointer overflow-hidden rounded-[10px]">
                 <CldImage
@@ -82,7 +82,7 @@ const MediaUploader = ({
                 />
               </div>
             </>
-          ) : (
+          ) : ( // Si no tenemos imagen mostramos cuadro de dialogo para subirla a cloudinary (open)
             <div 
               className="media-uploader_cta" 
               onClick={() => open()}
