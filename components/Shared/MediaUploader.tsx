@@ -59,7 +59,7 @@ const MediaUploader = ({
         multiple: false,
         resourceType: "image",
       }}
-      onSuccess={onUploadSuccessHandler} // Si se subio la imagen -> estado para image -> onValueChange para el formulario -> mensaje con toast
+      onSuccess={onUploadSuccessHandler} // Si se subio la imagen -> result -> estado para image -> onValueChange para el formulario -> mensaje con toast
       onError={onUploadErrorHandler}     // Si hubo error -> mensaje de error con toast     
     >
       {({ open }) => (                   // open es una función proporcionada por <CldUploadWidget> que se utiliza para abrir el diálogo de carga de archivos  
