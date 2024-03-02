@@ -26,6 +26,8 @@ import { CustomField } from "./CustomField"
 import { useState, useTransition } from "react"
 import { AspectRatioKey, debounce, deepMergeObjects } from "@/lib/utils"
 import { updateCredits } from "@/lib/actions/user.action"
+import MediaUploader from "./MediaUploader"
+import TransformedImage from "./TRanformedImage"
 
 export const formSchema = z.object({
   title: z.string(),
@@ -38,7 +40,7 @@ export const formSchema = z.object({
 
 const TransformationForm = ({ action, data = null, userId, type, creditBalance, config = null }: TransformationFormProps) => {
 
-  const transformationType = transformationTypes[type];
+  const transformationType = transformationTypes[type]; // remove, recolor, restore, removeBackground, fill
   const [image, setImage] = useState(data)
   const [newTransformation, setNewTransformation] = useState<Transformations | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -64,20 +66,20 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
 
-    
+
   }
 
   const onSelectFieldHandler = (value: string, onChangeField: (value: string) => void) => {
     const imageSize = aspectRatioOptions[value as AspectRatioKey]
 
-    setImage((prevState: any) => ({
+    setImage((prevState: any) => ({   // Estado para Image
       ...prevState,
       aspectRatio: imageSize.aspectRatio,
       width: imageSize.width,
       height: imageSize.height,
     }))
 
-    setNewTransformation(transformationType.config); // removeBackground
+    setNewTransformation(transformationType.config); // Estado para remove, recolor, fill, etc con la prop config=true
 
     return onChangeField(value)
   }
@@ -201,8 +203,33 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
           </div>  
         )}
 
+        <div className="media-uploader-field">
+          <CustomField
+            control={form.control}
+            name="publicId"
+            className="flex size-full flex-col" 
+            render={({ field }) => (
+              <MediaUploader
+                onValueChange={field.onChange} // función de reactHookForm que controla (validez, errors) el value del input de la imagen
+                setImage={setImage}            // Función que establece el estado de la imagen
+                publicId={field.value}         // identificador de la imagen 
+                image={image}                  // Estado de la imagen
+                type={type}                    // Tipo de transformación 
+              />
+            )}
+          />
+          <TransformedImage
+            image={image}
+            type={type}
+            title={form.getValues().title}
+            isTransforming={isTransforming}
+            setIsTransforming={setIsTransforming}
+            transformationConfig={transformationConfig}
+          />
+        </div>
+
         <div className="flex flex-col gap-4">
-          {/* Boton para transformar */}
+          {/* Boton para transformar la imagen*/}
           <Button 
             type="button"
             className="submit-button capitalize"
@@ -211,7 +238,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
           >
             {isTransforming ? 'Transforming...' : 'Apply Transformation'}
           </Button>
-          {/* Boton para grabar */}
+          {/* Boton para establecer los estados del formulario */}
           <Button
             type="submit"
             className="submit-button capitalize"
