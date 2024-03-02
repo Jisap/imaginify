@@ -27,7 +27,7 @@ import { useState, useTransition } from "react"
 import { AspectRatioKey, debounce, deepMergeObjects } from "@/lib/utils"
 import { updateCredits } from "@/lib/actions/user.action"
 import MediaUploader from "./MediaUploader"
-import TransformedImage from "./TRanformedImage"
+import TransformedImage from "./TranformedImage"
 
 export const formSchema = z.object({
   title: z.string(),
