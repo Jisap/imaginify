@@ -210,7 +210,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
             className="flex size-full flex-col" 
             render={({ field }) => (
               <MediaUploader
-                onValueChange={field.onChange} // función de reactHookForm que controla (validez, errors) el value del input de la imagen
+                onValueChange={field.onChange} // field.onChange es una función de reactHookForm que controla (validez, errors) el value del input de la imagen
                 setImage={setImage}            // Función que establece el estado de la imagen
                 publicId={field.value}         // identificador de la imagen 
                 image={image}                  // Estado de la imagen

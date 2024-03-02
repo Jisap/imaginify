@@ -25,7 +25,7 @@ const MediaUploader = ({
   const { toast } = useToast()
 
   const onUploadSuccessHandler = (result: any) => {
-    setImage((prevState: any) => ({
+    setImage((prevState: any) => ({       // Establece el estado de image
       ...prevState,
       publicId: result?.info?.public_id,
       width: result?.info?.width,
@@ -33,7 +33,7 @@ const MediaUploader = ({
       secureURL: result?.info?.secure_url
     }))
 
-    onValueChange(result?.info?.public_id)
+    onValueChange(result?.info?.public_id) // establece el valor del formulario con el public_id de cloudinary 
 
     toast({
       title: 'Image uploaded successfully',
@@ -68,7 +68,7 @@ const MediaUploader = ({
             Original
           </h3>
 
-          {publicId ? ( // Si tenemos la imagen seleccionada la mostramos con <CldImage />
+          {publicId ? ( // Si tenemos la imagen subida -> tenemos publicId -> la mostramos con <CldImage />
             <>
               <div className="cursor-pointer overflow-hidden rounded-[10px]">
                 <CldImage
