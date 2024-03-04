@@ -69,38 +69,42 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
 
   }
 
-  const onSelectFieldHandler = (value: string, onChangeField: (value: string) => void) => {
-    const imageSize = aspectRatioOptions[value as AspectRatioKey]
+  const onSelectFieldHandler = (
+    value: string,                                                // Valor del select obtenido por onValueChange de Shadcn
+    onChangeField: (value: string) => void                        // Recoge una función de react-hook-form (onChange) que controla la validez y errores del value
+  ) => {
 
-    setImage((prevState: any) => ({   // Estado para Image
+    const imageSize = aspectRatioOptions[value as AspectRatioKey] // Tamaño de imagen seleccionada
+
+    setImage((prevState: any) => ({                               // Estado para Image
       ...prevState,
       aspectRatio: imageSize.aspectRatio,
       width: imageSize.width,
       height: imageSize.height,
     }))
 
-    setNewTransformation(transformationType.config); // Estado para remove, recolor, fill, etc con la prop config=true
+    setNewTransformation(transformationType.config);              // Estado para remove, recolor, fill, etc con la prop config=true
 
-    return onChangeField(value)
+    return onChangeField(value)                                   // Devuelve el value al form y su validez.
   }
 
   const onInputChangeHandler = ( 
-    fieldName: string,                      // string con valor 'prompt' o 'color'
-    value: string,                          // e.target.value -> cadena del objeto a modificar 
-    type: string,                           // tipo de transformación remove o recolor 
-    onChangeField: (value: string) => void  // función proporcionada por react-hook-form para manejar cambios en el valor del campo, (validaciones y errores)
+    fieldName: string,                                            // string con valor 'prompt' o 'color'
+    value: string,                                                // e.target.value -> cadena del objeto a modificar 
+    type: string,                                                 // tipo de transformación remove o recolor 
+    onChangeField: (value: string) => void                        // Recoge una función de react-hook-form (onChange) que controla la validez y errores del value
   ) => {
     debounce(() => {
-      setNewTransformation((prevState: any) => ({             // Con 1 sec de retardamiento se establece el nuevo estado para la transformation
-        ...prevState,                                         // spread del anterior estado, {restore, fillbackground, remove, recolor, removeBackground}
-        [type]: {                                             // actualización de la transformación remove{} o recolor{}
-          ...prevState?.[type],                               // en ella spread tambien de sus props anteriores
-          [fieldName === 'prompt' ? 'prompt' : 'to']: value   // entonces modificación de la propiedad 'prompt' con el value del input 
-        }                                                     // o modificación de la propiedad 'to' con el value del input
+      setNewTransformation((prevState: any) => ({                 // Con 1 sec de retardamiento se establece el nuevo estado para la transformation
+        ...prevState,                                             // spread del anterior estado, {restore, fillbackground, remove, recolor, removeBackground}
+        [type]: {                                                 // actualización de la transformación remove{} o recolor{}
+          ...prevState?.[type],                                   // en ella spread tambien de sus props anteriores
+          [fieldName === 'prompt' ? 'prompt' : 'to']: value       // entonces modificación de la propiedad 'prompt' con el value del input 
+        }                                                         // o modificación de la propiedad 'to' con el value del input
       }))
     }, 1000)();
 
-    return onChangeField(value)
+    return onChangeField(value)                                   // Devuelve el value al form y su validez.
   }
 
   const onTransformHandler = async () => {
@@ -135,9 +139,9 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
             formLabel="Aspect Ratio"
             className="w-full"
             render={({ field }) => (
-              <Select
-                onValueChange={(value) => onSelectFieldHandler(value, field.onChange)}
-              >
+              <Select                                                                  // Establece el state de la image
+                onValueChange={(value) => onSelectFieldHandler(value, field.onChange)} // onValueChange obtiene el value seleccionado del select y field.onChange lo valida
+              >                                                                         
                 <SelectTrigger className="select-field">
                   <SelectValue placeholder="Select size" />
                 </SelectTrigger>
