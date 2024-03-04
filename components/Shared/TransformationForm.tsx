@@ -28,6 +28,9 @@ import { AspectRatioKey, debounce, deepMergeObjects } from "@/lib/utils"
 import { updateCredits } from "@/lib/actions/user.action"
 import MediaUploader from "./MediaUploader"
 import TransformedImage from "./TranformedImage"
+import { getCldImageUrl } from "next-cloudinary"
+import { addImage, updateImage } from "@/lib/actions/image.action"
+import { useRouter } from "next/navigation"
 
 export const formSchema = z.object({
   title: z.string(),
@@ -42,11 +45,12 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
 
   const transformationType = transformationTypes[type]; // remove, recolor, restore, removeBackground, fill
   const [image, setImage] = useState(data)
-  const [newTransformation, setNewTransformation] = useState<Transformations | null>(null);
+  const [newTransformation, setNewTransformation] = useState<Transformations | null>(null); // Estado para Transformation {}
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
   const [transformationConfig, setTransformationConfig] = useState(config)
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   const initialValues = data && action === 'Update' ? {
     title: data?.title,
@@ -63,11 +67,74 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
   })
 
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true);
 
+    if (data || image) {
 
+      const transformationUrl = getCldImageUrl({ // Url de la imagen subida a cloudinary para su transformación
+        width: image?.width,
+        height: image?.height,
+        src: image?.publicId,
+        ...transformationConfig
+      })
+
+      const imageData = {          // Data de la imagen a partir de los values, la image, el type , la transformationUrl y la transformationConfig
+        title: values.title,
+        publicId: image?.publicId,
+        transformationType: type,
+        width: image?.width,
+        height: image?.height,
+        config: transformationConfig,
+        secureURL: image?.secureURL,
+        transformationURL: transformationUrl,
+        aspectRatio: values.aspectRatio,
+        prompt: values.prompt,
+        color: values.color,
+      }
+
+      if (action === 'Add') {
+        try {
+          const newImage = await addImage({ // Añade a bd la info de la imagen
+            image: imageData,
+            userId,
+            path: '/'
+          })
+
+          if (newImage) {
+            form.reset()
+            setImage(data)
+            router.push(`/transformations/${newImage._id}`)
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+
+      if (action === 'Update') {    // Actualiza en bd la info de la imagen
+        try {
+          const updatedImage = await updateImage({
+            image: {
+              ...imageData,
+              _id: data._id
+            },
+            userId,
+            path: `/transformations/${data._id}`
+          })
+
+          if (updatedImage) {
+            router.push(`/transformations/${updatedImage._id}`)
+          }
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    }
+
+    setIsSubmitting(false)
   }
+
+
 
   const onSelectFieldHandler = (
     value: string,                                                // Valor del select obtenido por onValueChange de Shadcn
@@ -107,17 +174,17 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
     return onChangeField(value)                                   // Devuelve el value al form y su validez.
   }
 
-  const onTransformHandler = async () => {
+  const onTransformHandler = async () => {                        // Función que 
     setIsTransforming(true)
 
     setTransformationConfig(
-      deepMergeObjects(newTransformation, transformationConfig)
+      deepMergeObjects(newTransformation, transformationConfig)   // Fusiona dos objetos combinado su propiedades y subpropiedades en uno solo -> <TransformedImg />
     )
 
     setNewTransformation(null)
 
     startTransition(async () => {
-      await updateCredits(userId, creditFee)
+      await updateCredits(userId, creditFee)  // Action para buscar el usuario que hace la transformación y restarle un credito
     })
   }
 
@@ -228,7 +295,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
             title={form.getValues().title}
             isTransforming={isTransforming}
             setIsTransforming={setIsTransforming}
-            transformationConfig={transformationConfig}
+            transformationConfig={transformationConfig} // Estado con la fusión de las props de los dos objetos, el inicial y en el que se transforma
           />
         </div>
 
@@ -238,11 +305,11 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
             type="button"
             className="submit-button capitalize"
             disabled={isTransforming || newTransformation === null}
-            onClick={onTransformHandler} // Inicia la transformación
+            onClick={onTransformHandler} // Inicia la transformación fusionando las props de los dos obj -> transformationConfig -> <TransformedImage />
           >
             {isTransforming ? 'Transforming...' : 'Apply Transformation'}
           </Button>
-          {/* Boton para establecer los estados del formulario */}
+          {/* Boton para establecer los estados del formulario y enviar los valores a onSubmit */}
           <Button
             type="submit"
             className="submit-button capitalize"

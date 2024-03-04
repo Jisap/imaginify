@@ -128,27 +128,29 @@ export const download = (url: string, filename: string) => {
 };
 
 // DEEP MERGE OBJECTS
-export const deepMergeObjects = (obj1: any, obj2: any) => {
-  if (obj2 === null || obj2 === undefined) {
-    return obj1;
+export const deepMergeObjects = (obj1: any, obj2: any) => { // fusiona dos objetos combinado su propiedades y subpropiedades en uno solo
+
+  if (obj2 === null || obj2 === undefined) {  // Comprobación de si obj2 es null oundefined
+    return obj1;                              // Si lo es no se hace nada yse devuelve el obj1
   }
 
-  let output = { ...obj2 };
+  let output = { ...obj2 };                   // Se inicializa un nuevo objeto llamado output que contendrá el resultado de la fusión.
 
-  for (let key in obj1) {
-    if (obj1.hasOwnProperty(key)) {
+  for (let key in obj1) {                     // Se itera sobre todas las claves de obj1 con un bucle for in
+
+    if (obj1.hasOwnProperty(key)) {           // Se verifica si la clave actual pertenece a obj1  
       if (
-        obj1[key] &&
+        obj1[key] &&                          // Para cada clave en obj1, se comprueba si tanto obj1[key] como obj2[key] son objetos y no son nulos.
         typeof obj1[key] === "object" &&
         obj2[key] &&
         typeof obj2[key] === "object"
       ) {
-        output[key] = deepMergeObjects(obj1[key], obj2[key]);
+        output[key] = deepMergeObjects(obj1[key], obj2[key]); // Si ambas son objetos, se llama recursivamente a deepMergeObjects con obj1[key] y obj2[key] para fusionar sus subpropiedades.
       } else {
-        output[key] = obj1[key];
+        output[key] = obj1[key];              // Si alguna de las dos no es un objeto, se asigna el valor de obj1[key] a output[key]. Esto se hace para conservar las propiedades de obj1 que no están presentes en obj2.
       }
     }
   }
 
-  return output;
+  return output; // Finalmente, se devuelve el objeto output, que contiene la fusión de obj1 y obj2
 };
