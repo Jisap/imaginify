@@ -50,9 +50,9 @@ const TransformedImage = ({
         )}
       </div>
 
-      {image?.publicId && transformationConfig ? (          // Si tenemos la imagen a transformar y su confifuración
+      {image?.publicId && transformationConfig ? (              // Si tenemos la imagen a transformar y su confifuración
         <div className="relative">
-          <CldImage                                         // Se renderiza la imagen transformada
+          <CldImage                                             // Se renderiza la imagen transformada
             width={getImageSize(type, image, "width")}
             height={getImageSize(type, image, "height")}
             src={image?.publicId}
@@ -61,17 +61,17 @@ const TransformedImage = ({
             placeholder={dataUrl as PlaceholderValue}
             className="transformed-image"
             onLoad={() => {
-              setIsTransforming && setIsTransforming(false);  // onLoad se dispara cuando la imagen se carga exitosamente -> isTransforming = false
+              setIsTransforming && setIsTransforming(false);    // onLoad se dispara cuando la imagen se carga exitosamente -> isTransforming = false
             }}
             onError={() => {
               debounce(() => {
-                setIsTransforming && setIsTransforming(false); // onError se dispara cuando hay un erro en la carga de la imagen -> isTransforming = false
+                setIsTransforming && setIsTransforming(false);  // onError se dispara cuando hay un erro en la carga de la imagen -> isTransforming = false
               }, 8000)()
             }}
-            {...transformationConfig}
+            {...transformationConfig}                           // Configuración de la transformación
           />
 
-          {isTransforming && (                                    // Mientras se produce la transformación se muestra un spinner de carga                    
+          {isTransforming && (                                  // Mientras se produce la transformación se muestra un spinner de carga                    
             <div className="transforming-loader">
               <Image
                 src="/assets/icons/spinner.svg"

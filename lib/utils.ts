@@ -51,13 +51,13 @@ export const dataUrl = `data:image/svg+xml;base64,${toBase64(
 
 // FORM URL QUERY
 export const formUrlQuery = ({
-  searchParams,
-  key,
-  value,
+  searchParams,// string
+  key,         // string   
+  value,       // string|number|null 
 }: FormUrlQueryParams) => {
-  const params = { ...qs.parse(searchParams.toString()), [key]: value };
+  const params = { ...qs.parse(searchParams.toString()), [key]: value }; // Se construye un nuevo obj params con query:"busqueda"
 
-  return `${window.location.pathname}?${qs.stringify(params, {
+  return `${window.location.pathname}?${qs.stringify(params, {  // Se devuelve una url con esos nuevos params (redirección a home con los newparams)
     skipNulls: true,
   })}`;
 };

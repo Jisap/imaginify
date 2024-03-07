@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { aspectRatioOptions, creditFee, defaultValues, transformationTypes } from "@/constants"
 import { CustomField } from "./CustomField"
-import { useState, useTransition } from "react"
+import { useEffect, useState, useTransition } from "react"
 import { AspectRatioKey, debounce, deepMergeObjects } from "@/lib/utils"
 import { updateCredits } from "@/lib/actions/user.action"
 import MediaUploader from "./MediaUploader"
@@ -31,6 +31,7 @@ import TransformedImage from "./TranformedImage"
 import { getCldImageUrl } from "next-cloudinary"
 import { addImage, updateImage } from "@/lib/actions/image.action"
 import { useRouter } from "next/navigation"
+import { InsufficientCreditsModal } from "./InsufficientCreditsModal"
 
 export const formSchema = z.object({
   title: z.string(),
@@ -43,9 +44,9 @@ export const formSchema = z.object({
 
 const TransformationForm = ({ action, data = null, userId, type, creditBalance, config = null }: TransformationFormProps) => {
 
-  const transformationType = transformationTypes[type]; // remove, recolor, restore, removeBackground, fill
+  const transformationType = transformationTypes[type]; // remove, recolor, restore, removeBackground, fill (como un obj individual)(por defecto config=true)
   const [image, setImage] = useState(data)
-  const [newTransformation, setNewTransformation] = useState<Transformations | null>(null); // Estado para Transformation {}
+  const [newTransformation, setNewTransformation] = useState<Transformations | null>(null); // Estado para Transformation (como un objeto de objetos)
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isTransforming, setIsTransforming] = useState(false);
   const [transformationConfig, setTransformationConfig] = useState(config)
@@ -95,7 +96,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
 
       if (action === 'Add') {
         try {
-          const newImage = await addImage({ // Añade a bd la info de la imagen
+          const newImage = await addImage({ // Añade a bd la info de la nueva imagen
             image: imageData,
             userId,
             path: '/'
@@ -188,9 +189,17 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
     })
   }
 
+  useEffect(() => {
+    if (image && (type === 'restore' || type === 'removeBackground')) { // Si la transformación es 'restore' o 'removeBackground'
+      setNewTransformation(transformationType.config)                   // estado de la transformación al que viene por defecto de constants  
+    }
+  }, [image, transformationType.config, type])
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      {/* Si no tenemos credito - modal */}
+      {creditBalance < Math.abs(creditFee) && <InsufficientCreditsModal />} 
        <CustomField 
           control={form.control}  // Control de validación según zod basado en eschema
           name="title"
@@ -280,7 +289,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
             name="publicId"
             className="flex size-full flex-col" 
             render={({ field }) => (
-              <MediaUploader
+              <MediaUploader                   // Permite subir a cloudinary una imagen -> estado -> muestra la imagen -> mensaje de success
                 onValueChange={field.onChange} // field.onChange es una función de reactHookForm que controla (validez, errors) el value del input de la imagen
                 setImage={setImage}            // Función que establece el estado de la imagen
                 publicId={field.value}         // identificador de la imagen 
