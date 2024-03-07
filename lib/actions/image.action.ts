@@ -108,42 +108,42 @@ export async function getAllImages({ limit = 9, page = 1, searchQuery = '' }: {
       secure: true,
     })
 
-    let expression = 'folder=imaginify';
+    let expression = 'folder=imaginify';              // Expresión de busqueda
 
-    if (searchQuery) {
+    if (searchQuery) {                                // Si hay searchQuery se agrega "AND" y despues el searchQuery
       expression += ` AND ${searchQuery}`
     }
 
-    const { resources } = await cloudinary.search
+    const { resources } = await cloudinary.search     // Se ejecuta la busqueda en cloudinary con la expresión construida
       .expression(expression)
       .execute();
 
-    const resourceIds = resources.map((resource: any) => resource.public_id);
+    const resourceIds = resources.map((resource: any) => resource.public_id); // Se obtienen los ids de las imagenes del resultado
 
-    let query = {};
+    let query = {};           // Se construye una consulta query para buscar en MongoDB
 
-    if (searchQuery) {
-      query = {
-        publicId: {
+    if (searchQuery) {        // Si hay una busqueda
+      query = {               // la consulta incluirá
+        publicId: {           // un filtro por publicId
           $in: resourceIds
         }
       }
     }
 
-    const skipAmount = (Number(page) - 1) * limit;
+    const skipAmount = (Number(page) - 1) * limit;    // Se calcula el número de imagenes que se deben omitir para paginar correctamente
 
-    const images = await populateUser(Image.find(query))
-      .sort({ updatedAt: -1 })
-      .skip(skipAmount)
-      .limit(limit);
+    const images = await populateUser(Image.find(query))  // Se realiza una consulta a bd
+      .sort({ updatedAt: -1 })                            // En orden descendente según fecha
+      .skip(skipAmount)                                   // Indicando cuántos documentos se deben omitir antes de comenzar a devolver rdos
+      .limit(limit);                                      // Limita el número total de documentos que se devolverán en la consulta 
 
-    const totalImages = await Image.find(query).countDocuments();
-    const savedImages = await Image.find().countDocuments();
+    const totalImages = await Image.find(query).countDocuments(); // Nº total de imagenes encontradas en la bd según restricciones
+    const savedImages = await Image.find().countDocuments();      // El número total de imágenes guardadas en Cloudinary 
 
     return {
-      data: JSON.parse(JSON.stringify(images)),
-      totalPage: Math.ceil(totalImages / limit),
-      savedImages,
+      data: JSON.parse(JSON.stringify(images)),   // Se devuelve un objeto de contiene un array de imagenes en json
+      totalPage: Math.ceil(totalImages / limit),  // Total de imagenes en bd según restricciones
+      savedImages,                                // Total de imagenes en cloudinary
     }
   } catch (error) {
     handleError(error)
