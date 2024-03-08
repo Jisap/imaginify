@@ -33,7 +33,7 @@ import { addImage, updateImage } from "@/lib/actions/image.action"
 import { useRouter } from "next/navigation"
 import { InsufficientCreditsModal } from "./InsufficientCreditsModal"
 
-export const formSchema = z.object({
+export const formSchema = z.object({ // Esquema para el formulario 
   title: z.string(),
   aspectRatio: z.string().optional(),
   color: z.string().optional(),
@@ -292,7 +292,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
               <MediaUploader                   // Permite subir a cloudinary una imagen -> estado -> muestra la imagen -> mensaje de success
                 onValueChange={field.onChange} // field.onChange es una función de reactHookForm que controla (validez, errors) el value del input de la imagen
                 setImage={setImage}            // Función que establece el estado de la imagen
-                publicId={field.value}         // identificador de la imagen 
+                publicId={field.value}         // identificador de la imagen = value que le de el componente MediaUploader
                 image={image}                  // Estado de la imagen
                 type={type}                    // Tipo de transformación 
               />

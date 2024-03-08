@@ -6,7 +6,7 @@ import { PlaceholderValue } from 'next/dist/shared/lib/get-img-props'
 import Image from 'next/image'
 import React from 'react'
 
-const TransformedImage = ({ 
+const TransformedImage = ({ // Cloudinary renderiza la imagen transformada a apartir de src=image?.publicId. Nunca se guarda a menos que button->donwload
   image, 
   type, 
   title, 
@@ -52,7 +52,7 @@ const TransformedImage = ({
 
       {image?.publicId && transformationConfig ? (              // Si tenemos la imagen a transformar y su confifuración
         <div className="relative">
-          <CldImage                                             // Se renderiza la imagen transformada
+          <CldImage                                             // Se renderiza la imagen transformada. 
             width={getImageSize(type, image, "width")}
             height={getImageSize(type, image, "height")}
             src={image?.publicId}

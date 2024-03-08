@@ -91,19 +91,20 @@ export const debounce = (func: (...args: any[]) => void, delay: number) => {
 };
 
 // GET IMAGE SIZE
-export type AspectRatioKey = keyof typeof aspectRatioOptions;
+export type AspectRatioKey = keyof typeof aspectRatioOptions; // aspectRatioOptions = {1:1{}, 3.4{}, 9.16{}}
+
 export const getImageSize = (
-  type: string,
-  image: any,
-  dimension: "width" | "height"
-): number => {
-  if (type === "fill") {
-    return (
-      aspectRatioOptions[image.aspectRatio as AspectRatioKey]?.[dimension] ||
+  type: string,                 // tipo de transformación
+  image: any,                   // iamge según state  
+  dimension: "width" | "height" // dimension ancho o alto
+): number => {                  // la respuesta en un número
+  if (type === "fill") {                                                      // Si la transformación es 'fill'
+    return (                                                                  // devolvemos
+      aspectRatioOptions[image.aspectRatio as AspectRatioKey]?.[dimension] || // la dimension según aspectRatio de la image
       1000
     );
   }
-  return image?.[dimension] || 1000;
+  return image?.[dimension] || 1000;  // Si es otra transformación devolvemos la image.width o image.height
 };
 
 // DOWNLOAD IMAGE

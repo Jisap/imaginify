@@ -10,9 +10,10 @@ import { getImageSize } from "@/lib/utils";
 import { DeleteConfirmation } from "@/components/Shared/DeleteConfirmation";
 
 const ImageDetails = async ({ params: { id } }: SearchParamProps) => {
+
   const { userId } = auth();
 
-  const image = await getImageById(id);
+  const image = await getImageById(id); // La imagen antes de transformarla se subio a cloudinary
 
   return (
     <>
@@ -63,7 +64,7 @@ const ImageDetails = async ({ params: { id } }: SearchParamProps) => {
           <div className="flex flex-col gap-4">
             <h3 className="h3-bold text-dark-600">Original</h3>
 
-            <Image
+            <Image 
               width={getImageSize(image.transformationType, image, "width")}
               height={getImageSize(image.transformationType, image, "height")}
               src={image.secureURL}
