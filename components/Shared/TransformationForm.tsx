@@ -217,6 +217,7 @@ const TransformationForm = ({ action, data = null, userId, type, creditBalance, 
             render={({ field }) => (
               <Select                                                                  // Establece el state de la image
                 onValueChange={(value) => onSelectFieldHandler(value, field.onChange)} // onValueChange obtiene el value seleccionado del select y field.onChange lo valida
+                value={field.value}
               >                                                                         
                 <SelectTrigger className="select-field">
                   <SelectValue placeholder="Select size" />

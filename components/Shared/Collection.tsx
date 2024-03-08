@@ -51,7 +51,7 @@ export const Collection = ({
     <>
       <div className="collection-heading">
         <h2 className="h2-bold text-dark-600">Recent Edits</h2>
-        {/* Se muestra por defecto el componente <Search /> al ser has search en Collection = true 
+        {/* Se muestra por defecto el componente <Search /> al ser hasSearch en Collection = true 
             Si se escribe algo en Search -> SearchParams a home -> getAllImages en images -> se renderizan en <Card />
         */}
         {hasSearch && <Search />} 

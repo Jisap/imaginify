@@ -15,7 +15,7 @@ export const Search = () => {
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
       if (query) {                                // Se recibe el término de busqueda
-        const newUrl = formUrlQuery({             // Se construye un url que contenga unos nuevos params con query:"searchParams"
+        const newUrl = formUrlQuery({             // Se construye un url que contenga unos nuevos params con query:"témino de busqueda"
           searchParams: searchParams.toString(),  
           key: "query",
           value: query,
