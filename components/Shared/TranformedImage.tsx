@@ -19,12 +19,12 @@ const TransformedImage = ({ // Cloudinary renderiza la imagen transformada a apa
   const downloadHandler = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     e.preventDefault();
 
-    download(getCldImageUrl({
-      width: image?.width,
+    download(getCldImageUrl({ // donwload es una función para descarga de imagenes que necesita
+      width: image?.width,    // la url que viene de getCldImagUrl (cloudinary)
       height: image?.height,
       src: image?.publicId,
       ...transformationConfig
-    }), title)
+    }), title)                // y el título de archivo donde se va a guardar
   }
 
   return (
