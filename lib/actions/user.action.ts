@@ -74,15 +74,15 @@ export async function deleteUser(clerkId: string) {
 }
 
 // USE CREDITS
-export async function updateCredits(userId: string, creditFee: number) {
+export async function updateCredits(userId: string, creditFee: number) { // por defecto creditFee es -1, pero cuando se compra se establece lo que quiera comprar el usuario
   try {
     await connectToDatabase();
 
-    const updatedUserCredits = await User.findOneAndUpdate(
-      { _id: userId },
-      { $inc: { creditBalance: creditFee } },
-      { new: true }
-    )
+    const updatedUserCredits = await User.findOneAndUpdate(   // Actualización del saldo de créditos del usuario -> findOneAndUpdate
+      { _id: userId },                                        // Usuario cuyo saldo de créditos se va a actualizar
+      { $inc: { creditBalance: creditFee } },                 // Cantidad de créditos que agregaran o restarán al saldo existente del usuario
+      { new: true }                                           // $inc -> incrementa el campo creditBalance en la cantidad de creditFee
+    )                                                         // { new: true }: Opción que indica a Mongoose que devuelva el documento actualizado después de la operación de actualización.
 
     if (!updatedUserCredits) throw new Error("User credits update failed");
 
