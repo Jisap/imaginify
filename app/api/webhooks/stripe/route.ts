@@ -10,7 +10,7 @@ export async function POST(request: Request) {                            // La 
   const body = await request.text();                                      // Obtención del cuerpo de la solicitud
 
   const sig = request.headers.get("stripe-signature") as string;          // Se obtiene la firma del webhook de los encabezados de la solicitud
-  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+  const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;              // Secret de webhook de stripe
 
   let event;
 
